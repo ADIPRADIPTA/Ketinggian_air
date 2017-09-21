@@ -70,7 +70,7 @@ String bacaKetinggian(){
   distance = (duration/2) / 29.1;
   Serial.print("Sensor diletakan di ketinggian : ");
   Serial.println(lokasi_sensor); 
-  ketinggian_air = lokasi_sensor - distance;
+  ketinggian_air = (lokasi_sensor - distance) - 1;
   Serial.print("Ketinggian air saat ini :  ");
   Serial.println(ketinggian_air);
   delay(3000);  
