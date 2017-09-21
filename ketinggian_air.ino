@@ -79,6 +79,9 @@ String bacaKetinggian(){
   
   String retVal;
   if(ketinggian_air < 0 || ketinggian_air > 20){
+    counter_tinggi = 0;
+    counter_normal = 0 ;
+    counter_rendah ++ ;
     Serial.print("Pembacaan sensor Minus : ");
     retVal = (String)recent_ketinggian +"/"+ recent_status + "/" + recent_notif + "/" ;  
   }else
