@@ -59,7 +59,7 @@ void loop(){
 
 String bacaKetinggian(){
   Serial.println("Menjalankan Fungsi bacaKetinggian()");
-  long duration, distance;
+  long duration, distance ;
   int ketinggian_air;
   digitalWrite(ultrasonic_trigger_pin, LOW);  
   delayMicroseconds(2); 
@@ -70,7 +70,7 @@ String bacaKetinggian(){
   distance = (duration/2) / 29.1;
   Serial.print("Sensor diletakan di ketinggian : ");
   Serial.println(lokasi_sensor); 
-  ketinggian_air = lokasi_sensor - distance;
+  ketinggian_air = (lokasi_sensor - distance) - 1;
   Serial.print("Ketinggian air saat ini :  ");
   Serial.println(ketinggian_air);
   delay(3000);  
@@ -79,9 +79,6 @@ String bacaKetinggian(){
   
   String retVal;
   if(ketinggian_air < 0 || ketinggian_air > 20){
-    counter_tinggi = 0;
-    counter_normal = 0 ;
-    counter_rendah ++ ;
     Serial.print("Pembacaan sensor Minus : ");
     retVal = (String)recent_ketinggian +"/"+ recent_status + "/" + recent_notif + "/" ;  
   }else
