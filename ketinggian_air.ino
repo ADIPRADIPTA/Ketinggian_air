@@ -1,10 +1,9 @@
 #include <SoftwareSerial.h>
 #define ultrasonic_trigger_pin 8
 #define ultrasonic_echo_pin 9
-#define NOTIF_TINGGI 1
-#define NOTIF_NORMAL 2
-#define NOTIF_RENDAH 3
-#define NOTIF_OFF 4
+#define NOTIF_TINGGI "1"
+#define NOTIF_NORMAL "2"
+#define NOTIF_RENDAH "3"
 
 const byte rxPin = 6;
 const byte txPin = 7;
@@ -14,6 +13,9 @@ float lokasi_sensor = 35;
 float batas_atas = lokasi_sensor - 20;
 float batas_bawah = 0;
 
+String current_notif = "";
+String recent_notif = "";
+int recent_ketinggian = 0;
 
 SoftwareSerial ESP8266 (rxPin, txPin);
 
@@ -61,7 +63,7 @@ String bacaKetinggian(){
   distance = (duration/2) / 29.1;
   Serial.print("Sensor diletakan di ketinggian : ");
   Serial.println(lokasi_sensor); 
-  ketinggian_air = (lokasi_sensor - distance) - 0;
+  ketinggian_air = lokasi_sensor - distance;
   Serial.print("Ketinggian air saat ini :  ");
   Serial.println(ketinggian_air);
   String status_ketinggian = "";
@@ -91,6 +93,11 @@ String bacaKetinggian(){
     Serial.println("Ketinggian air kondisi surut, mohon untuk ditutup puntu Bendungan");
   }
   delay(3000);  
+  
+  if(recent_notif.equals("")){
+    recent_notif = NOTIF_NORMAL;  
+  }
+  
   if(counter_tinggi >= 10){
       notif = NOTIF_TINGGI;
   }else
@@ -99,11 +106,19 @@ String bacaKetinggian(){
   }else
   if(counter_rendah >= 10){
       notif = NOTIF_RENDAH;
-  }else{
-    notif = NOTIF_OFF;
+  }else
+  if(counter_rendah < 10 || counter_normal < 10 || counter_tinggi < 10){
+      notif = recent_notif;
   }
-  
-  String retVal = (String)ketinggian_air +"/"+ status_ketinggian +"/";
+  String retVal;
+  if(ketinggian_air < 0 || ketinggian_air > 20){
+    retVal = (String)recent_ketinggian +"/"+ status_ketinggian + "/" + notif + "/" ;  
+  }else
+  if(ketinggian_air >= 0 && ketinggian_air <= 20){
+    retVal = (String)ketinggian_air +"/"+ status_ketinggian + "/" + notif + "/" ;  
+    recent_ketinggian = ketinggian_air;
+  }
+  recent_notif = current_notif;
   return retVal;
 }
  
