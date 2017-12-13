@@ -11,8 +11,8 @@ const byte rxPin = 6;
 const byte txPin = 7;
 
 //----Var untuk ultarsonic
-float lokasi_sensor = 35;
-float batas_atas = lokasi_sensor - 20;
+float lokasi_sensor = 12;
+float batas_atas = lokasi_sensor - 5;
 float batas_bawah = 0;
 
 
@@ -72,7 +72,7 @@ String bacaKetinggian(){
   distance = (duration/2) / 29.1;
   Serial.print("Sensor diletakan di ketinggian : ");
   Serial.println(lokasi_sensor); 
-  ketinggian_air = (lokasi_sensor - distance) - 1;
+  ketinggian_air = (lokasi_sensor - distance) - 0;
   Serial.print("Ketinggian air saat ini :  ");
   Serial.println(ketinggian_air);
   delay(3000);  
@@ -80,11 +80,11 @@ String bacaKetinggian(){
   
   
   String retVal;
-  if(ketinggian_air < 0 || ketinggian_air > 20){
+  if(ketinggian_air < 0 || ketinggian_air > 10){
     Serial.print("Pembacaan sensor Minus : ");
     retVal = (String)recent_ketinggian +"/"+ recent_status + "/" + recent_notif + "/" ;  
   }else
-  if(ketinggian_air >= 0 && ketinggian_air <= 20){
+  if(ketinggian_air >= 0 && ketinggian_air <= 10){
     if (ketinggian_air >= batas_atas){
       counter_tinggi ++;
       counter_normal = 0 ;
@@ -93,7 +93,7 @@ String bacaKetinggian(){
       Serial.println("Ketinggian air sudah masuk batas atas, mohon untuk dibuka pintu Bendungan");
     }else
     //untuk kondisi normal
-    if (ketinggian_air < batas_atas && ketinggian_air > (batas_atas - 10)){
+    if (ketinggian_air < batas_atas && ketinggian_air > (batas_atas - 6)){
       counter_tinggi = 0;
       counter_normal ++ ;
       counter_rendah = 0 ;
@@ -101,7 +101,7 @@ String bacaKetinggian(){
       Serial.println("Ketinggian air kondisi normal");
     }else 
     //untuk kodisi rendah 
-    if (ketinggian_air <= (batas_atas - 10)){
+    if (ketinggian_air <= (batas_atas - 6)){
       counter_tinggi = 0;
       counter_normal = 0 ;
       counter_rendah ++ ;
