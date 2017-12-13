@@ -1,36 +1,32 @@
+//--deklarasi library.
 #include <SoftwareSerial.h>
+
+//--deklarasi konstantsa.
 #define ultrasonic_trigger_pin 8
 #define ultrasonic_echo_pin 9
 #define NOTIF_TINGGI "1"
 #define NOTIF_NORMAL "2"
 #define NOTIF_RENDAH "3"
 #define NOTIF_OFF "4"
-
 const byte rxPin = 6;
 const byte txPin = 7;
 
-//----Var untuk ultarsonic
-float lokasi_sensor = 35;
-float batas_atas = lokasi_sensor - 20;
+//deklarasi global variabel.
+float lokasi_sensor = 12;
+float batas_atas = lokasi_sensor - 4;
 float batas_bawah = 0;
-
-
 String status_ketinggian;
 String recent_notif = "3";
 String recent_status = "Rendah";
-int recent_ketinggian = 0; //limit bawah untuk kondisi normal
-
+int recent_ketinggian = 0; //limit bawah untuk kondisi rendah
 boolean initial =  true;
-
-
 SoftwareSerial ESP8266 (rxPin, txPin);
-
 int counter_tinggi = 0;
 int counter_normal = 0;
 int counter_rendah = 0;
-
 String notif = "";
 
+//--deklarasi procedure setup mikrokontroler meliputi pin ultrasonik dan serial.
 void setup() {
   pinMode(ultrasonic_trigger_pin, OUTPUT);
   pinMode(ultrasonic_echo_pin, INPUT);
@@ -38,6 +34,7 @@ void setup() {
   ESP8266.begin(115200);
 }
 
+//--deklarasi procedure sebuah proses dilakukan secara continue oleh mikrokontroler.
 void loop(){
   Serial.println("============================================================================================");
   String data = bacaKetinggian();
@@ -49,6 +46,7 @@ void loop(){
   }
   delay(1000);
   Serial.print("Counter rendah : ");
+  
   Serial.println(counter_rendah);
   Serial.print("Counter normal : ");
   Serial.println(counter_normal);
@@ -57,6 +55,7 @@ void loop(){
   Serial.println("============================================================================================");
 }
 
+//--deklarasi function untuk membaca ketinggian air dengan tipe data string, dimana string tersebut akan menjadi parameter url yang dikirim ke server.
 String bacaKetinggian(){
   Serial.println("Menjalankan Fungsi bacaKetinggian()");
   long duration, distance ;
@@ -70,28 +69,27 @@ String bacaKetinggian(){
   distance = (duration/2) / 29.1;
   Serial.print("Sensor diletakan di ketinggian : ");
   Serial.println(lokasi_sensor); 
-  ketinggian_air = (lokasi_sensor - distance) - 1;
+  ketinggian_air = (lokasi_sensor - distance) - 0;
   Serial.print("Ketinggian air saat ini :  ");
   Serial.println(ketinggian_air);
   delay(3000);  
   
-  
-  
+  //--proses awal fuzzy
   String retVal;
-  if(ketinggian_air < 0 || ketinggian_air > 20){
+  if(ketinggian_air < 0 || ketinggian_air > 10){
     Serial.print("Pembacaan sensor Minus : ");
     retVal = (String)recent_ketinggian +"/"+ recent_status + "/" + recent_notif + "/" ;  
   }else
-  if(ketinggian_air >= 0 && ketinggian_air <= 20){
+  if(ketinggian_air >= 0 && ketinggian_air <= 10){
     if (ketinggian_air >= batas_atas){
       counter_tinggi ++;
       counter_normal = 0 ;
       counter_rendah = 0 ;
       status_ketinggian = "Tinggi";
-      Serial.println("Ketinggian air sudah masuk batas atas, mohon untuk dibuka pintu Bendungan");
+      Serial.println("Ketinggian air sudah masuk status tinggi, mohon untuk dibuka pintu Bendungan");
     }else
     //untuk kondisi normal
-    if (ketinggian_air < batas_atas && ketinggian_air > (batas_atas - 10)){
+    if (ketinggian_air < batas_atas && ketinggian_air > (batas_atas - 4)){
       counter_tinggi = 0;
       counter_normal ++ ;
       counter_rendah = 0 ;
@@ -99,12 +97,12 @@ String bacaKetinggian(){
       Serial.println("Ketinggian air kondisi normal");
     }else 
     //untuk kodisi rendah 
-    if (ketinggian_air <= (batas_atas - 10)){
+    if (ketinggian_air <= (batas_atas - 5)){
       counter_tinggi = 0;
       counter_normal = 0 ;
       counter_rendah ++ ;
       status_ketinggian = "Rendah";
-      Serial.println("Ketinggian air kondisi surut, mohon untuk ditutup puntu Bendungan");
+      Serial.println("Ketinggian air kondisi rendah, mohon untuk ditutup pintu Bendungan");
     }
     if(counter_tinggi >= 10){
         notif = NOTIF_TINGGI;
@@ -125,5 +123,5 @@ String bacaKetinggian(){
     recent_status = status_ketinggian;
   }
   Serial.println(retVal);
-  return retVal;
+  return retVal;//return value dari function baca ketinggian //--akhir proses fuzzys
 }
